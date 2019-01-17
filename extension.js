@@ -18,7 +18,7 @@ const MyAboutDialog = new Lang.Class({
     _init: function() {
         let rgba = this._get_button_color();
 
-        log(rgba.green);
+        log(rgba.red);
         this.parent({ styleClass: 'extension-dialog' });
 
         this.setButtons([{ label: "OK",
@@ -31,18 +31,25 @@ const MyAboutDialog = new Lang.Class({
 
         box.add(new St.Label({ text: "GNOME Shell extension to Play with theming.", x_align: Clutter.ActorAlign.CENTER }));
         box.add(new St.Label({ text: "This program comes with absolutely no warranty.", x_align: Clutter.ActorAlign.CENTER, style_class: "warn-label" }));
-        box.add(new St.Button({ label: "OK", style_class: "custom-button" }));
+
+        let button = new St.Button({ label: "OK",
+                                      style_class: "custom-button",
+                                    });
+        let color = 'background-color: rgba(' + rgba.red*255 + ',' + rgba.green*255 + ',' + rgba.blue*255 + ',' + '255)'
+        log('button is ' + color);
+        button.set_style(color);
+        box.add(button);
     },
 
     _get_button_color: function() {
-        let button = new Gtk.WidgetPath();
-        button.append_type(Gtk.Button);
+        let widget = new Gtk.WidgetPath();
+        widget.append_type(Gtk.Label);
 
         let context = new Gtk.StyleContext();
-        context.set_path(button);
-        context.add_class('custom-button');
+        context.set_path(widget);
+        context.add_class('gtkstyle-fallback');
 
-        return context.get_background_color(Gtk.StateFlags.PRELIGHT);
+        return context.get_background_color(Gtk.StateFlags.SELECTED);
     },
 
     _onClose: function(button, event) {
