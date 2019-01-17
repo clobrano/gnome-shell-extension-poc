@@ -7,6 +7,7 @@ const Lang = imports.lang;
 const Gio = imports.gi.Gio;
 const ModalDialog = imports.ui.modalDialog;
 const Clutter = imports.gi.Clutter;
+const Gtk = imports.gi.Gtk;
 
 let text, button;
 
@@ -15,6 +16,9 @@ const MyAboutDialog = new Lang.Class({
     Extends: ModalDialog.ModalDialog,
 
     _init: function() {
+        let rgba = this._get_button_color();
+
+        log(rgba.green);
         this.parent({ styleClass: 'extension-dialog' });
 
         this.setButtons([{ label: "OK",
@@ -25,15 +29,20 @@ const MyAboutDialog = new Lang.Class({
         let box = new St.BoxLayout({ vertical: true});
         this.contentLayout.add(box);
 
-        //let gicon = new Gio.FileIcon({ file: Gio.file_new_for_path(MySelf.path + "/icons/icon.png") });
-        //let icon = new St.Icon({ gicon: gicon });
-        //box.add(icon);
-
-        //box.add(new St.Label({ text: "AboutDialogTest Version " + MySelf.metadata.version, x_align: Clutter.ActorAlign.CENTER, style_class: "title-label" }));
-        box.add(new St.Label({ text: "GNOME Shell extension to display an About Dialog.", x_align: Clutter.ActorAlign.CENTER }));
+        box.add(new St.Label({ text: "GNOME Shell extension to Play with theming.", x_align: Clutter.ActorAlign.CENTER }));
         box.add(new St.Label({ text: "This program comes with absolutely no warranty.", x_align: Clutter.ActorAlign.CENTER, style_class: "warn-label" }));
-        box.add(new St.Label({ text: "Copyright © 2017-2018 BlahBlahBlah", x_align: Clutter.ActorAlign.CENTER, style_class: "copyright-label" }));
-        box.add(new St.Button({ label: "BlahBlahBlah", style_class: "custom-button" }));
+        box.add(new St.Button({ label: "OK", style_class: "custom-button" }));
+    },
+
+    _get_button_color: function() {
+        let button = new Gtk.WidgetPath();
+        button.append_type(Gtk.Button);
+
+        let context = new Gtk.StyleContext();
+        context.set_path(button);
+        context.add_class('custom-button');
+
+        return context.get_background_color(Gtk.StateFlags.PRELIGHT);
     },
 
     _onClose: function(button, event) {
@@ -46,25 +55,7 @@ function _hideHello() {
     text = null;
 }
 
-function _showHello() {
-    if (!text) {
-        text = new St.Label({ style_class: 'helloworld-label', text: "Hello, world!" });
-        Main.uiGroup.add_actor(text);
-    }
-
-    log(text);
-    text.opacity = 255;
-
-    let monitor = Main.layoutManager.primaryMonitor;
-
-    text.set_position(monitor.x + Math.floor(monitor.width / 2 - text.width / 2),
-                      monitor.y + Math.floor(monitor.height / 2 - text.height / 2));
-
-    Tweener.addTween(text,
-                     { opacity: 0,
-                       time: 2,
-                       transition: 'easeOutQuad',
-                       onComplete: _hideHello });
+function _showDialog() {
     let dialog = new MyAboutDialog();
     dialog.open(global.get_current_time());
 }
@@ -80,7 +71,7 @@ function init() {
                              style_class: 'system-status-icon' });
 
     button.set_child(icon);
-    button.connect('button-press-event', _showHello);
+    button.connect('button-press-event', _showDialog);
 }
 
 function enable() {
